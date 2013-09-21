@@ -13,7 +13,7 @@
 
 @property (nonatomic, strong) NSString *email, *name, *ID;
 @property FBSession *session;
-@property UIViewController *delegate;
+@property (weak,nonatomic) UIViewController *delegate;
 
 @end
 
@@ -54,6 +54,50 @@
     }
 }
 
+-(void)isMemberOfPublicId:(NSString*)idPublic{
+    [FBRequestConnection startWithGraphPath:[NSString stringWithFormat:@"/me/likes/%@",idPublic] completionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
+        if (error) {
+            NSLog(@"FB_UD %@", error.userInfo);
+        } else {
+            NSLog(@"FB_LIKES: %@:, id: %@", result,idPublic);
+            if([result objectForKey:@"data"]){
+                if ([[result objectForKey:@"data"] count]) {
+                    NSLog(@"class data %@",[[result objectForKey:@"data"]class]);
+                    NSNumberFormatter* formatter = [[NSNumberFormatter alloc] init];
+                    NSLog(@"%lld", [[formatter numberFromString:idPublic] longLongValue]);
+                    for (FBGraphObject *graph in [result objectForKey:@"data"]) {
+                        if ([[formatter numberFromString:graph[@"id"]] longLongValue] == [[formatter numberFromString:idPublic] longLongValue]) {
+                            if ([self.delegate isKindOfClass:[ViewController class]]&&self.delegate) {
+                                [[(ViewController*)self.delegate _labelAnswer]setText:@"YES"];
+                            }
+                        }
+
+                    }
+                                    }else{
+                    if ([self.delegate isKindOfClass:[ViewController class]]&&self.delegate) {
+                        [[(ViewController*)self.delegate _labelAnswer]setText:@"NO"];
+                    }
+                }
+            }
+        }
+    }];
+}
+
+-(void)getIDofLink:(NSString*)graphObject{
+    [FBRequestConnection startWithGraphPath:[NSString stringWithFormat:@"/%@",graphObject] completionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
+        if (error) {
+            NSLog(@"FB_UD %@", error.userInfo);
+        } else {
+            NSLog(@"FB_ID: %@", [result objectForKey:@"id"]);
+            if ([result count]) {
+                [self isMemberOfPublicId:(NSString*)[result objectForKey:@"id"]];
+            }
+        }
+
+        
+    }];
+
+}
 
 - (void)loginWithDelegate:(UIViewController *)delegate{
     [FBSession setActiveSession: [[FBSession alloc] initWithPermissions:@[@"publish_actions", @"publish_stream", @"user_photos"]]];
@@ -75,8 +119,9 @@
                             return;
                         }
                         
-                        if ([delegate isKindOfClass:[ViewController class]]) {
-                            [(ViewController*)delegate showLikeButton:1.0f];
+                        if ([delegate isKindOfClass:[ViewController class]]&&delegate) {
+                            self.delegate=delegate;
+                            [(ViewController*)self.delegate showLikeButton:1.0f];
                         }
                     }];
                 }

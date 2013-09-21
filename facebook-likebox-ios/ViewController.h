@@ -9,10 +9,16 @@
 #import <UIKit/UIKit.h>
 
 @interface ViewController : UIViewController <UIWebViewDelegate>
+{
+    IBOutlet UIButton *_checkIfUserIsMemberButton;
+    IBOutlet UITextField *_pageID;
+}
 
 @property (weak,nonatomic) IBOutlet UIWebView *webView;
 
 @property (strong,nonatomic) UIActivityIndicatorView *indicatorLikeView;
+@property (strong,nonatomic) IBOutlet UILabel *_labelAnswer;
+
 
 - (void)showLikeButton:(CGFloat)alpha;
 

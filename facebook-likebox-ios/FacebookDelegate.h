@@ -25,5 +25,8 @@
 - (void)loginWithDelegate:(UIViewController *)delegate;
 -(BOOL)sessionIsValid;
 
+-(void)getIDofLink:(NSString*)graphObject;
+
+
 
 @end

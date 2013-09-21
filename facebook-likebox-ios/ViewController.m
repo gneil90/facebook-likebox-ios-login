@@ -21,8 +21,19 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
     [self showLikeButton:0.0f];
+    
+    [_checkIfUserIsMemberButton addTarget:self action:@selector(checkPressed:)
+      forControlEvents:UIControlEventTouchUpInside];
 }
 
+-(void)checkPressed:(id)sender{
+    FacebookDelegate *_facebook = [FacebookDelegate sharedInstance];
+    if ([_facebook sessionIsValid]) {
+        [_facebook getIDofLink:_pageID.text];
+    }else{
+        [_facebook loginWithDelegate:self];
+    }
+}
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -35,7 +46,8 @@
     [self.view addSubview:self.indicatorLikeView];
     [self.indicatorLikeView setHidden:YES];
     
-    
+    //https://developers.facebook.com/docs/reference/plugins/like-box/
+    //use this link to get your own like-box plugin
     NSString *likeButtonIframe = @"<iframe src=\"http://www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2Feasyten&amp;width=300&amp;height=62&amp;colorscheme=light&amp;show_faces=false&amp;header=false&amp;stream=false&amp;show_border=false\" scrolling=\"no\" frameborder=\"0\" style=\"border:none; overflow:hidden; width:300px; height:62px;\" allowTransparency=\"true\"></iframe>";
     
     NSString *likeButtonHtml = [NSString stringWithFormat:@"<HTML><BODY style=\"background:transparent\">%@</BODY></HTML>", likeButtonIframe];
@@ -87,7 +99,7 @@
 }
 
 
-
+//method to detect when webview redirects us to login
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType{
     NSLog(@"%@",[request.URL absoluteString]);
     
